@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Machine Maintenance Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7fa; }
+        .card { margin-bottom: 20px; }
+        .badge-status { font-size: 0.9rem; padding: 0.4em; }
+    </style>
+</head>
+<body>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Machine Maintenance Dashboard</h2>
+    <div class="row mb-4">
+        <div class="col-md-3"><div class="card p-3 text-center bg-primary text-white"><h5>Total Machines</h5><h3 id="totalMachines">0</h3></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center bg-success text-white"><h5>Total Tasks</h5><h3 id="totalTasks">0</h3></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center bg-warning text-white"><h5>Pending Tasks</h5><h3 id="pendingTasks">0</h3></div></div>
+        <div class="col-md-3"><div class="card p-3 text-center bg-danger text-white"><h5>High Risk Machines</h5><h3 id="highRiskMachines">0</h3></div></div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h4>Machine Management</h4>
+                <table class="table table-striped">
+                    <thead><tr><th>ID</th><th>Name</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="machineTable"></tbody>
+                </table>
+
+                <h5>Add New Machine</h5>
+                <input type="text" id="newMachineName" placeholder="Name" class="form-control mb-1">
+                <input type="text" id="newMachineLocation" placeholder="Location" class="form-control mb-1">
+                <input type="text" id="newMachineStatus" placeholder="Status" class="form-control mb-1">
+                <input type="number" id="newMachineInterval" placeholder="Interval (days)" class="form-control mb-2">
+                <button class="btn btn-success" onclick="addMachine()">Add Machine</button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h4>Maintenance Tasks</h4>
+                <table class="table table-striped">
+                    <thead><tr><th>Machine</th><th>Description</th><th>Scheduled</th><th>Status</th></tr></thead>
+                    <tbody id="taskTable"></tbody>
+                </table>
+
+                <h5>Schedule Task</h5>
+                <input id="taskMachine" class="form-control mb-2" placeholder="Machine ID">
+                <input id="taskDescription" class="form-control mb-2" placeholder="Task Description">
+                <input id="taskDate" type="date" class="form-control mb-2">
+                <button class="btn btn-success mb-2" onclick="schedule()">Schedule Task</button>
+
+                <h5>Predictive Alert</h5>
+                <input id="interval" class="form-control mb-2" placeholder="Maintenance Interval">
+                <button class="btn btn-warning mb-2" onclick="predict()">Check Risk</button>
+                <p id="riskResult" class="mt-2"></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
