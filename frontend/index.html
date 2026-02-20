@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MantisAI — Machine Maintenance</title>
+    <meta name="description" content="Industrial Machine Maintenance Scheduler — real-time monitoring, scheduling, and predictive risk assessment for manufacturing equipment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0d14;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.07);
+            --bg-glass: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.08);
+            --border-glow: rgba(99,179,237,0.3);
+            --text-primary: #e2e8f0;
+            --text-muted: #718096;
+            --text-dim: #4a5568;
+            --accent: #63b3ed;
+            --accent-glow: rgba(99,179,237,0.15);
+            --green: #68d391;
+            --green-dim: rgba(104,211,145,0.15);
+            --yellow: #f6e05e;
+            --yellow-dim: rgba(246,224,94,0.15);
+            --red: #fc8181;
+            --red-dim: rgba(252,129,129,0.15);
+            --orange: #f6ad55;
+            --orange-dim: rgba(246,173,85,0.15);
+            --purple: #b794f4;
+            --purple-dim: rgba(183,148,244,0.15);
+            --radius: 14px;
+            --radius-sm: 8px;
+            --shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Background grid ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background-image:
+                linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position: fixed; left: 0; top: 0; bottom: 0;
+            width: 240px;
+            background: rgba(10,13,20,0.95);
+            border-right: 1px solid var(--border);
+            display: flex; flex-direction: column;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        .sidebar-logo {
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-text {
+            font-size: 1.4rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .logo-sub {
+            font-size: 0.7rem; color: var(--text-muted);
+            font-weight: 500; letter-spacing: 0.06em;
+            text-transform: uppercase; margin-top: 2px;
+        }
+
+        .sidebar-nav { padding: 16px 12px; flex: 1; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 14px; border-radius: var(--radius-sm);
+            color: var(--text-muted); font-size: 0.88rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; margin-bottom: 2px;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover { background: var(--bg-glass); color: var(--text-primary); }
+
+        .nav-item.active {
+            background: var(--accent-glow);
+            border-color: var(--border-glow);
+            color: var(--accent);
+        }
+
+        .nav-item i { font-size: 1.1rem; width: 20px; text-align: center; }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .status-indicator {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* ── Main content ── */
+        .main {
+            margin-left: 240px;
+            min-height: 100vh;
+            position: relative; z-index: 1;
+        }
+
+        .topbar {
+            padding: 20px 32px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(10,13,20,0.6);
+            backdrop-filter: blur(20px);
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+        }
+
+        .topbar-title { font-size: 1.1rem; font-weight: 600; }
+        .topbar-subtitle { font-size: 0.78rem; color: var(--text-muted); margin-top: 1px; }
+
+        .topbar-actions { display: flex; gap: 10px; align-items: center; }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            padding: 9px 18px; border-radius: var(--radius-sm);
+            font-size: 0.83rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; border: none; font-family: 'Inter', sans-serif;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a9fd4, #7c6fcd);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(99,179,237,0.3);
+        }
+
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(99,179,237,0.4); }
+
+        .btn-ghost {
+            background: var(--bg-glass); border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-ghost:hover { background: var(--bg-card-hover); }
+
+        .btn-danger { background: var(--red-dim); border: 1px solid rgba(252,129,129,0.3); color: var(--red); }
+        .btn-success { background: var(--green-dim); border: 1px solid rgba(104,211,145,0.3); color: var(--green); }
+        .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+
+        .content { padding: 28px 32px; }
+
+        /* ── Tab panels ── */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Stat cards ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px; margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 22px;
+            position: relative; overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover { border-color: var(--border-glow); background: var(--bg-card-hover); }
+
+        .stat-card::before {
+            content: '';
+            position: absolute; top: -30px; right: -20px;
+            width: 80px; height: 80px; border-radius: 50%;
+            opacity: 0.08;
+        }
+
+        .stat-card.blue::before { background: var(--accent); }
+        .stat-card.green::before { background: var(--green); }
+        .stat-card.yellow::before { background: var(--yellow); }
+        .stat-card.red::before { background: var(--red); }
+
+        .stat-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+        .stat-value {
+            font-size: 2.2rem; font-weight: 800; margin: 6px 0 4px;
+            line-height: 1;
+        }
+
+        .stat-card.blue .stat-value { color: var(--accent); }
+        .stat-card.green .stat-value { color: var(--green); }
+        .stat-card.yellow .stat-value { color: var(--yellow); }
+        .stat-card.red .stat-value { color: var(--red); }
+
+        .stat-sub { font-size: 0.76rem; color: var(--text-muted); }
+        .stat-icon { font-size: 1.3rem; margin-bottom: 10px; }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 18px 22px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .card-title { font-size: 0.95rem; font-weight: 700; }
+        .card-body { padding: 22px; }
+
+        /* ── Tables ── */
+        .table-wrap { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+
+        th {
+            padding: 10px 14px; text-align: left;
+            font-size: 0.71rem; font-weight: 600; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.07em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-glass); }
+
+        /* ── Badges ── */
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: 20px;
+            font-size: 0.73rem; font-weight: 600;
+        }
+
+        .badge-green  { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(104,211,145,0.25); }
+        .badge-yellow { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(246,224,94,0.25); }
+        .badge-red    { background: var(--red-dim);    color: var(--red);    border: 1px solid rgba(252,129,129,0.25); }
+        .badge-orange { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(246,173,85,0.25); }
+        .badge-blue   { background: var(--accent-glow);color: var(--accent); border: 1px solid rgba(99,179,237,0.25); }
+        .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(183,148,244,0.25); }
+        .badge-gray   { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border); }
+
+        /* ── Forms ── */
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+
+        .form-control, .form-select {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            font-size: 0.85rem; font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(99,179,237,0.06);
+            box-shadow: 0 0 0 3px rgba(99,179,237,0.1);
+        }
+
+        .form-control::placeholder { color: var(--text-dim); }
+        .form-select option { background: #1a1f2e; color: var(--text-primary); }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* ── Alerts & notifications ── */
+        .toast-container {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+
+        .toast {
+            background: rgba(30,35,50,0.95);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            min-width: 280px;
+            display: flex; align-items: flex-start; gap: 12px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(20px);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+
+        .toast-icon { font-size: 1.1rem; }
+        .toast-msg { font-size: 0.83rem; }
+        .toast-title { font-weight: 700; font-size: 0.82rem; margin-bottom: 2px; }
+
+        .toast.success { border-color: rgba(104,211,145,0.35); }
+        .toast.success .toast-icon { color: var(--green); }
+        .toast.error   { border-color: rgba(252,129,129,0.35); }
+        .toast.error .toast-icon   { color: var(--red); }
+        .toast.info    { border-color: rgba(99,179,237,0.35); }
+        .toast.info .toast-icon    { color: var(--accent); }
+
+        /* ── Risk meter ── */
+        .risk-result {
+            padding: 18px 22px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin-top: 16px;
+            display: none;
+        }
+
+        .risk-result.show { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+        .risk-level { font-size: 1.8rem; font-weight: 800; }
+        .risk-message { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* ── Loading ── */
+        .loading-row td {
+            text-align: center; color: var(--text-muted);
+            padding: 40px; font-size: 0.85rem;
+        }
+
+        /* ── Empty state ── */
+        .empty-state {
+            text-align: center; padding: 48px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.4; }
+        .empty-state p { font-size: 0.85rem; }
+
+        /* ── Grid layouts ── */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            display: none; align-items: center; justify-content: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: #111520;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 90%; max-width: 680px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .modal-title { font-size: 1rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-body { padding: 24px; }
+
+        /* ── Section header ── */
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .section-title { font-size: 1.05rem; font-weight: 700; }
+
+        /* ── Overdue highlight ── */
+        .overdue-row td { background: rgba(252,129,129,0.03); }
+        .overdue-row td:first-child { border-left: 2px solid var(--red); }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .sidebar { transform: translateX(-100%); }
+            .main { margin-left: 0; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .two-col, .three-col, .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+    <div class="sidebar-logo">
+        <div class="logo-text">MantisAI</div>
+        <div class="logo-sub">Maintenance Platform</div>
+    </div>
+    <div class="sidebar-nav">
+        <div class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </div>
+        <div class="nav-item" id="nav-machines" onclick="switchTab('machines')">
+            <i class="bi bi-cpu-fill"></i> Machines
+        </div>
+        <div class="nav-item" id="nav-tasks" onclick="switchTab('tasks')">
+            <i class="bi bi-list-check"></i> All Tasks
+        </div>
+        <div class="nav-item" id="nav-schedule" onclick="switchTab('schedule')">
+            <i class="bi bi-calendar-plus-fill"></i> Schedule
+        </div>
+        <div class="nav-item" id="nav-upcoming" onclick="switchTab('upcoming')">
+            <i class="bi bi-clock-history"></i> Upcoming
+        </div>
+        <div class="nav-item" id="nav-predict" onclick="switchTab('predict')">
+            <i class="bi bi-activity"></i> Risk Predictor
+        </div>
+    </div>
+    <div class="sidebar-footer">
+        <div class="status-indicator">
+            <div class="status-dot" id="connectionDot"></div>
+            <span id="connectionStatus">Connecting...</span>
+        </div>
+    </div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+    <div class="topbar">
+        <div>
+            <div class="topbar-title" id="pageTitle">Dashboard</div>
+            <div class="topbar-subtitle" id="pageSubtitle">Real-time machine maintenance overview</div>
+        </div>
+        <div class="topbar-actions">
+            <button class="btn btn-ghost btn-sm" onclick="refreshAll()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ── DASHBOARD TAB ── -->
+        <div class="tab-panel active" id="tab-dashboard">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-icon"><i class="bi bi-cpu-fill" style="color:var(--accent)"></i></div>
+                    <div class="stat-label">Total Machines</div>
+                    <div class="stat-value" id="stat-machines">—</div>
+                    <div class="stat-sub">registered units</div>
+                </div>
+                <div class="stat-card yellow">
+                    <div class="stat-icon"><i class="bi bi-hourglass-split" style="color:var(--yellow)"></i></div>
+                    <div class="stat-label">Pending Tasks</div>
+                    <div class="stat-value" id="stat-pending">—</div>
+                    <div class="stat-sub">awaiting completion</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill" style="color:var(--red)"></i></div>
+                    <div class="stat-label">Overdue Tasks</div>
+                    <div class="stat-value" id="stat-overdue">—</div>
+                    <div class="stat-sub">past scheduled date</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><i class="bi bi-check-circle-fill" style="color:var(--green)"></i></div>
+                    <div class="stat-label">Completed</div>
+                    <div class="stat-value" id="stat-completed">—</div>
+                    <div class="stat-sub">tasks this year</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-clock-history" style="color:var(--accent)"></i> Upcoming — Next 30 Days</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Machine</th><th>Task</th><th>Date</th><th>Priority</th></tr></thead>
+                            <tbody id="dash-upcoming-table">
+                                <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-exclamation-circle-fill" style="color:var(--red)"></i> Overdue Tasks</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead><tr><th>Machine</th><th>Task</th><th>Due</th><th>Status</th></tr></thead>
+                            <tbody id="dash-overdue-table">
+                                <tr class="loading-row"><td colspan="4">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── MACHINES TAB ── -->
+        <div class="tab-panel" id="tab-machines">
+            <div class="section-header">
+                <div class="section-title">Machine Fleet</div>
+                <button class="btn btn-primary btn-sm" onclick="showAddMachineModal()">
+                    <i class="bi bi-plus-lg"></i> Add Machine
+                </button>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Location</th>
+                                <th>Interval</th>
+                                <th>Last Maint.</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="machine-table">
+                            <tr class="loading-row"><td colspan="6">Loading machines...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASKS TAB ── -->
+        <div class="tab-panel" id="tab-tasks">
+            <div class="section-header">
+                <div class="section-title">All Tasks</div>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <select class="form-select" id="taskFilterStatus" onchange="filterTasks()" style="width:160px;padding:8px 12px;font-size:0.8rem">
+                        <option value="">All Statuses</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Machine</th>
+                                <th>Description</th>
+                                <th>Scheduled</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="task-table">
+                            <tr class="loading-row"><td colspan="6">Loading tasks...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── SCHEDULE TAB ── -->
+        <div class="tab-panel" id="tab-schedule">
+            <div class="two-col" style="align-items:start">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-calendar-plus-fill" style="color:var(--accent)"></i> Schedule New Task</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Machine *</label>
+                            <select class="form-select" id="sch-machine">
+                                <option value="">Select machine...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Task Description *</label>
+                            <input type="text" class="form-control" id="sch-desc" placeholder="e.g. Replace hydraulic oil">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Scheduled Date *</label>
+                                <input type="date" class="form-control" id="sch-date">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Priority</label>
+                                <select class="form-select" id="sch-priority">
+                                    <option value="Low">Low</option>
+                                    <option value="Medium" selected>Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Critical">Critical</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notes (optional)</label>
+                            <input type="text" class="form-control" id="sch-notes" placeholder="Any extra details...">
+                        </div>
+                        <button class="btn btn-primary" onclick="scheduleTask()" style="width:100%">
+                            <i class="bi bi-calendar-check-fill"></i> Schedule Task
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-cpu-fill" style="color:var(--purple)"></i> Add New Machine</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Machine Name *</label>
+                            <input type="text" class="form-control" id="new-mach-name" placeholder="e.g. Press 103">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location *</label>
+                            <input type="text" class="form-control" id="new-mach-loc" placeholder="e.g. Plant 1-S">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Interval (days) *</label>
+                                <input type="number" class="form-control" id="new-mach-interval" placeholder="30" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="new-mach-status">
+                                    <option>Operational</option>
+                                    <option>Needs Maintenance</option>
+                                    <option>Under Maintenance</option>
+                                    <option>Offline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Maintenance Date</label>
+                            <input type="date" class="form-control" id="new-mach-last">
+                        </div>
+                        <button class="btn btn-primary" onclick="addMachine()" style="width:100%">
+                            <i class="bi bi-plus-circle-fill"></i> Add Machine
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── UPCOMING TAB ── -->
+        <div class="tab-panel" id="tab-upcoming">
+            <div class="section-header">
+                <div class="section-title">Upcoming Scheduled Tasks</div>
+                <span class="badge badge-blue" id="upcoming-count">Loading...</span>
+            </div>
+            <div class="card">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Machine</th><th>Description</th><th>Scheduled Date</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="upcoming-table">
+                            <tr class="loading-row"><td colspan="6">Loading upcoming tasks...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PREDICT TAB ── -->
+        <div class="tab-panel" id="tab-predict">
+            <div class="two-col" style="align-items:start">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-activity" style="color:var(--red)"></i> Manual Risk Check</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Maintenance Interval (days)</label>
+                            <input type="number" class="form-control" id="pred-interval" placeholder="Enter interval in days..." min="1">
+                        </div>
+                        <button class="btn btn-primary" onclick="checkRisk()">
+                            <i class="bi bi-shield-exclamation"></i> Assess Risk
+                        </button>
+
+                        <div class="risk-result" id="risk-result"></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="bi bi-bar-chart-fill" style="color:var(--green)"></i> Fleet Risk Report</span>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:16px">
+                            Automatically assess risk for all machines based on last maintenance date and interval.
+                        </p>
+                        <button class="btn btn-ghost" onclick="assessFleet()" style="width:100%;margin-bottom:16px">
+                            <i class="bi bi-cpu"></i> Assess All Machines
+                        </button>
+                        <div id="fleet-report"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</main>
+
+<!-- ── MODAL: Machine Detail ── -->
+<div class="modal-overlay" id="machineModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="modal-machine-title">Machine Details</div>
+            <button class="modal-close" onclick="closeModal('machineModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-body" id="modal-machine-body"></div>
+    </div>
+</div>
+
+<!-- ── MODAL: Edit Task ── -->
+<div class="modal-overlay" id="taskModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">Update Task Status</div>
+            <button class="modal-close" onclick="closeModal('taskModal')"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="edit-task-id">
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-select" id="edit-task-status">
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes</label>
+                <input type="text" class="form-control" id="edit-task-notes" placeholder="Update notes...">
+            </div>
+            <button class="btn btn-primary" onclick="saveTaskUpdate()" style="width:100%">
+                <i class="bi bi-check2-circle"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

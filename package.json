@@ -1,0 +1,33 @@
+{
+  "name": "machine-maintenance-microservices",
+  "version": "2.0.0",
+  "description": "Machine Maintenance Scheduler — Microservices with Firebase Firestore",
+  "main": "index.js",
+  "scripts": {
+    "gateway": "node gateway/server.js",
+    "machine": "node machine-service/server.js",
+    "task": "node task-service/server.js",
+    "scheduler": "node scheduler-service/server.js",
+    "seed": "node seed.js",
+    "start": "concurrently \"node gateway/server.js\" \"node machine-service/server.js\" \"node task-service/server.js\" \"node scheduler-service/server.js\"",
+    "frontend": "npx serve frontend -l 5000"
+  },
+  "keywords": [
+    "microservices",
+    "maintenance",
+    "firebase",
+    "scheduler"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.6",
+    "csv-parser": "^3.2.0",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.1.0",
+    "node-fetch": "^3.3.2"
+  }
+}
