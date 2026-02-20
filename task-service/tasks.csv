@@ -1,0 +1,12 @@
+task_id,machine_id,task_description,scheduled_date,status,completed_on
+1,1,Replace hydraulic oil,30-09-2025,Completed,01-10-2025
+2,1,General inspection,01-12-2025,Completed,01-12-2025
+3,1,Replace coolant filter,05-01-2026,Scheduled,
+4,2,Lubrication check,15-12-2025,Pending,
+5,2,Inspect safety guards,15-09-2025,Completed,15-09-2025
+6,3,Weekly belt alignment,20-12-2025,Completed,20-12-2025
+7,3,Motor temperature check,27-12-2025,Scheduled,
+8,4,Replace valve seals,21-12-2025,In Progress,
+9,4,Pressure test,01-06-2025,Completed,01-06-2025
+10,5,Inspect generator coils,01-07-2025,Completed,01-07-2025
+11,5,Change oil filter,15-01-2026,Scheduled,
