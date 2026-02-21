@@ -8,8 +8,6 @@ app.use(express.json());
 app.use(cors());
 
 const COL = 'machines';
-
-// GET all machines
 app.get('/machines', async (req, res) => {
     try {
         const snap = await db.collection(COL).get();
@@ -19,8 +17,6 @@ app.get('/machines', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// GET single machine
 app.get('/machines/:id', async (req, res) => {
     try {
         const doc = await db.collection(COL).doc(req.params.id).get();
@@ -31,7 +27,6 @@ app.get('/machines/:id', async (req, res) => {
     }
 });
 
-// POST add machine
 app.post('/machines', async (req, res) => {
     try {
         const newMachine = {
@@ -49,8 +44,6 @@ app.post('/machines', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// PUT update machine
 app.put('/machines/:id', async (req, res) => {
     try {
         const doc = db.collection(COL).doc(req.params.id);
@@ -62,8 +55,6 @@ app.put('/machines/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// DELETE machine
 app.delete('/machines/:id', async (req, res) => {
     try {
         await db.collection(COL).doc(req.params.id).delete();
