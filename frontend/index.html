@@ -45,8 +45,6 @@
             min-height: 100vh;
             overflow-x: hidden;
         }
-
-        /* ── Background grid ── */
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 0;
@@ -56,8 +54,6 @@
             background-size: 40px 40px;
             pointer-events: none;
         }
-
-        /* ── Sidebar ── */
         .sidebar {
             position: fixed; left: 0; top: 0; bottom: 0;
             width: 240px;
@@ -180,11 +176,8 @@
 
         .content { padding: 28px 32px; }
 
-        /* ── Tab panels ── */
         .tab-panel { display: none; }
         .tab-panel.active { display: block; }
-
-        /* ── Stat cards ── */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -228,8 +221,6 @@
 
         .stat-sub { font-size: 0.76rem; color: var(--text-muted); }
         .stat-icon { font-size: 1.3rem; margin-bottom: 10px; }
-
-        /* ── Cards ── */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -245,8 +236,6 @@
 
         .card-title { font-size: 0.95rem; font-weight: 700; }
         .card-body { padding: 22px; }
-
-        /* ── Tables ── */
         .table-wrap { overflow-x: auto; }
 
         table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
@@ -267,7 +256,6 @@
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: var(--bg-glass); }
 
-        /* ── Badges ── */
         .badge {
             display: inline-flex; align-items: center; gap: 4px;
             padding: 3px 10px; border-radius: 20px;
@@ -281,8 +269,6 @@
         .badge-blue   { background: var(--accent-glow);color: var(--accent); border: 1px solid rgba(99,179,237,0.25); }
         .badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(183,148,244,0.25); }
         .badge-gray   { background: rgba(255,255,255,0.06); color: var(--text-muted); border: 1px solid var(--border); }
-
-        /* ── Forms ── */
         .form-group { margin-bottom: 16px; }
         .form-label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
 
@@ -308,8 +294,6 @@
         .form-select option { background: #1a1f2e; color: var(--text-primary); }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-        /* ── Alerts & notifications ── */
         .toast-container {
             position: fixed; bottom: 24px; right: 24px; z-index: 9999;
             display: flex; flex-direction: column; gap: 10px;
@@ -343,7 +327,6 @@
         .toast.info    { border-color: rgba(99,179,237,0.35); }
         .toast.info .toast-icon    { color: var(--accent); }
 
-        /* ── Risk meter ── */
         .risk-result {
             padding: 18px 22px;
             border-radius: var(--radius);
@@ -359,13 +342,10 @@
         .risk-level { font-size: 1.8rem; font-weight: 800; }
         .risk-message { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
 
-        /* ── Loading ── */
         .loading-row td {
             text-align: center; color: var(--text-muted);
             padding: 40px; font-size: 0.85rem;
         }
-
-        /* ── Empty state ── */
         .empty-state {
             text-align: center; padding: 48px 20px;
             color: var(--text-muted);
@@ -374,11 +354,9 @@
         .empty-state i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.4; }
         .empty-state p { font-size: 0.85rem; }
 
-        /* ── Grid layouts ── */
+
         .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .three-col { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-
-        /* ── Modal ── */
         .modal-overlay {
             position: fixed; inset: 0; z-index: 200;
             background: rgba(0,0,0,0.7);
@@ -411,25 +389,17 @@
         .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px; }
         .modal-close:hover { color: var(--text-primary); }
         .modal-body { padding: 24px; }
-
-        /* ── Section header ── */
         .section-header {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 20px;
         }
 
         .section-title { font-size: 1.05rem; font-weight: 700; }
-
-        /* ── Overdue highlight ── */
         .overdue-row td { background: rgba(252,129,129,0.03); }
         .overdue-row td:first-child { border-left: 2px solid var(--red); }
-
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-
-        /* ── Responsive ── */
         @media (max-width: 900px) {
             .sidebar { transform: translateX(-100%); }
             .main { margin-left: 0; }
@@ -439,8 +409,6 @@
     </style>
 </head>
 <body>
-
-<!-- Sidebar -->
 <nav class="sidebar">
     <div class="sidebar-logo">
         <div class="logo-text">MantisAI</div>
@@ -473,8 +441,6 @@
         </div>
     </div>
 </nav>
-
-<!-- Main -->
 <main class="main">
     <div class="topbar">
         <div>
@@ -489,8 +455,6 @@
     </div>
 
     <div class="content">
-
-        <!-- ── DASHBOARD TAB ── -->
         <div class="tab-panel active" id="tab-dashboard">
             <div class="stats-grid">
                 <div class="stat-card blue">
@@ -549,8 +513,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ── MACHINES TAB ── -->
         <div class="tab-panel" id="tab-machines">
             <div class="section-header">
                 <div class="section-title">Machine Fleet</div>
@@ -578,8 +540,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ── TASKS TAB ── -->
         <div class="tab-panel" id="tab-tasks">
             <div class="section-header">
                 <div class="section-title">All Tasks</div>
@@ -614,7 +574,6 @@
             </div>
         </div>
 
-        <!-- ── SCHEDULE TAB ── -->
         <div class="tab-panel" id="tab-schedule">
             <div class="two-col" style="align-items:start">
                 <div class="card">
@@ -696,8 +655,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ── UPCOMING TAB ── -->
         <div class="tab-panel" id="tab-upcoming">
             <div class="section-header">
                 <div class="section-title">Upcoming Scheduled Tasks</div>
@@ -714,8 +671,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ── PREDICT TAB ── -->
         <div class="tab-panel" id="tab-predict">
             <div class="two-col" style="align-items:start">
                 <div class="card">
@@ -754,8 +709,6 @@
 
     </div><!-- /content -->
 </main>
-
-<!-- ── MODAL: Machine Detail ── -->
 <div class="modal-overlay" id="machineModal">
     <div class="modal">
         <div class="modal-header">
@@ -765,8 +718,6 @@
         <div class="modal-body" id="modal-machine-body"></div>
     </div>
 </div>
-
-<!-- ── MODAL: Edit Task ── -->
 <div class="modal-overlay" id="taskModal">
     <div class="modal">
         <div class="modal-header">
@@ -794,8 +745,6 @@
         </div>
     </div>
 </div>
-
-<!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
 <script src="app.js"></script>
