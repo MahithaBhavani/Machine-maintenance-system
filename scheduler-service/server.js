@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-
-// ✅ FIX: app must be declared BEFORE app.use() calls
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -57,4 +55,4 @@ app.post('/assess', (req, res) => {
     res.json(results);
 });
 
-app.listen(3003, () => console.log('✅ Scheduler Service running on http://localhost:3003'));
+app.listen(3003, () => console.log(' Scheduler Service running on http://localhost:3003'));
