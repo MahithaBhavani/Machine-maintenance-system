@@ -2,15 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { db } = require(path.join(__dirname, '..', 'firebase-config'));
-
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 const COL = 'tasks';
 const today = () => new Date().toISOString().split('T')[0];
-
-// GET all tasks
 app.get('/tasks', async (req, res) => {
     try {
         const snap = await db.collection(COL).get();
@@ -20,8 +16,6 @@ app.get('/tasks', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// GET upcoming tasks (scheduled/pending, date >= today)
 app.get('/tasks/upcoming', async (req, res) => {
     try {
         const snap = await db.collection(COL).get();
@@ -37,8 +31,6 @@ app.get('/tasks/upcoming', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// GET overdue tasks (date < today, not Completed)
 app.get('/tasks/overdue', async (req, res) => {
     try {
         const snap = await db.collection(COL).get();
@@ -54,8 +46,6 @@ app.get('/tasks/overdue', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// GET tasks by machine ID
 app.get('/tasks/machine/:machineId', async (req, res) => {
     try {
         const snap = await db.collection(COL)
@@ -67,8 +57,6 @@ app.get('/tasks/machine/:machineId', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// GET single task
 app.get('/tasks/:id', async (req, res) => {
     try {
         const doc = await db.collection(COL).doc(req.params.id).get();
@@ -79,7 +67,6 @@ app.get('/tasks/:id', async (req, res) => {
     }
 });
 
-// POST schedule new task
 app.post('/tasks', async (req, res) => {
     try {
         const newTask = {
@@ -98,8 +85,6 @@ app.post('/tasks', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// PUT update task
 app.put('/tasks/:id', async (req, res) => {
     try {
         const doc = db.collection(COL).doc(req.params.id);
@@ -115,8 +100,6 @@ app.put('/tasks/:id', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-// DELETE task
 app.delete('/tasks/:id', async (req, res) => {
     try {
         await db.collection(COL).doc(req.params.id).delete();
