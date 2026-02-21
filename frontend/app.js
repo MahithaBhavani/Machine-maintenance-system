@@ -1,17 +1,6 @@
-/**
- * MantisAI — app.js
- * Frontend logic for Machine Maintenance Dashboard
- * All data operations go through the API Gateway at http://localhost:3000
- */
-
 const GW = 'http://localhost:3000';
-
-// ─── State ────────────────────────────────────────────────────────────────────
-let allMachines = [];
 let allTasks = [];
 const today = () => new Date().toISOString().split('T')[0];
-
-// ─── Tab Navigation ───────────────────────────────────────────────────────────
 const TAB_META = {
     dashboard: { title: 'Dashboard', subtitle: 'Real-time machine maintenance overview' },
     machines: { title: 'Machines', subtitle: 'Fleet management — view, add, update, delete machines' },
@@ -33,8 +22,6 @@ function switchTab(tab) {
     if (tab === 'upcoming') loadUpcoming();
     if (tab === 'schedule') populateMachineSelect();
 }
-
-// ─── Toast Notifications ─────────────────────────────────────────────────────
 function toast(type, title, message) {
     const icons = { success: 'bi-check-circle-fill', error: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
     const container = document.getElementById('toast-container');
@@ -46,8 +33,6 @@ function toast(type, title, message) {
     container.appendChild(el);
     setTimeout(() => el.remove(), 4000);
 }
-
-// ─── Status → Badge ───────────────────────────────────────────────────────────
 function statusBadge(status) {
     const map = {
         'Operational': 'badge-green',
@@ -67,8 +52,6 @@ function priorityBadge(p) {
     const map = { Critical: 'badge-red', High: 'badge-orange', Medium: 'badge-yellow', Low: 'badge-gray' };
     return `<span class="badge ${map[p] || 'badge-gray'}">${p || 'Medium'}</span>`;
 }
-
-// ─── API Helpers ──────────────────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
     const res = await fetch(`${GW}${path}`, {
         headers: { 'Content-Type': 'application/json' },
@@ -77,8 +60,6 @@ async function apiFetch(path, opts = {}) {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
 }
-
-// ─── Load ALL Data ────────────────────────────────────────────────────────────
 async function refreshAll() {
     checkConnection();
     await Promise.all([loadMachines(), loadAllTasks()]);
@@ -102,8 +83,6 @@ async function loadAllTasks() {
         console.error('Task load failed:', e);
     }
 }
-
-// ─── Dashboard ────────────────────────────────────────────────────────────────
 function renderDashboard() {
     const pending = allTasks.filter(t => t.status === 'Pending' || t.status === 'Scheduled' || t.status === 'In Progress').length;
     const overdue = allTasks.filter(t => t.scheduledDate < today() && t.status !== 'Completed').length;
@@ -113,8 +92,6 @@ function renderDashboard() {
     document.getElementById('stat-pending').textContent = pending;
     document.getElementById('stat-overdue').textContent = overdue;
     document.getElementById('stat-completed').textContent = completed;
-
-    // Upcoming (next 30 days)
     const cutoff = new Date(); cutoff.setDate(cutoff.getDate() + 30);
     const cutoffStr = cutoff.toISOString().split('T')[0];
     const upcoming = allTasks
@@ -131,8 +108,6 @@ function renderDashboard() {
                 <td>${priorityBadge(t.priority)}</td>
             </tr>`).join('')
         : `<tr><td colspan="4"><div class="empty-state"><i class="bi bi-calendar-check"></i><p>No upcoming tasks in 30 days</p></div></td></tr>`;
-
-    // Overdue
     const overdueList = allTasks
         .filter(t => t.scheduledDate < today() && t.status !== 'Completed')
         .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
@@ -153,8 +128,6 @@ function getMachineName(machineId) {
     const m = allMachines.find(m => m.id === machineId || m.machine_id === machineId);
     return m ? m.name : `Machine ${machineId}`;
 }
-
-// ─── Machines ─────────────────────────────────────────────────────────────────
 function renderMachineTable() {
     const tbody = document.getElementById('machine-table');
     if (!allMachines.length) {
@@ -255,8 +228,6 @@ function showAddMachineModal() {
     switchTab('schedule');
     document.getElementById('nav-schedule').scrollIntoView();
 }
-
-// ─── Tasks ────────────────────────────────────────────────────────────────────
 function renderTaskTable() {
     const filter = document.getElementById('taskFilterStatus')?.value || '';
     const tasks = filter ? allTasks.filter(t => t.status === filter) : allTasks;
@@ -324,8 +295,6 @@ async function saveTaskUpdate() {
         toast('error', 'Error', 'Could not update task.');
     }
 }
-
-// ─── Schedule New Task ────────────────────────────────────────────────────────
 async function scheduleTask() {
     const machineId = document.getElementById('sch-machine').value;
     const desc = document.getElementById('sch-desc').value.trim();
@@ -361,8 +330,6 @@ function populateMachineSelect() {
     sel.innerHTML = '<option value="">Select machine...</option>' +
         allMachines.map(m => `<option value="${m.id}" ${m.id === cur ? 'selected' : ''}>${m.name} (${m.location})</option>`).join('');
 }
-
-// ─── Upcoming Tasks ───────────────────────────────────────────────────────────
 async function loadUpcoming() {
     const tbody = document.getElementById('upcoming-table');
     try {
@@ -387,8 +354,6 @@ async function loadUpcoming() {
         tbody.innerHTML = `<tr><td colspan="6" style="color:var(--red);text-align:center;padding:30px">Could not load upcoming tasks.</td></tr>`;
     }
 }
-
-// ─── Risk Predictor ───────────────────────────────────────────────────────────
 async function checkRisk() {
     const interval = document.getElementById('pred-interval').value;
     const resultEl = document.getElementById('risk-result');
@@ -436,7 +401,6 @@ async function assessFleet() {
     }
 }
 
-// ─── Modals ───────────────────────────────────────────────────────────────────
 function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
@@ -446,8 +410,6 @@ document.addEventListener('click', e => {
         e.target.classList.remove('show');
     }
 });
-
-// ─── Connection Check ─────────────────────────────────────────────────────────
 async function checkConnection() {
     const dot = document.getElementById('connectionDot');
     const txt = document.getElementById('connectionStatus');
@@ -460,8 +422,6 @@ async function checkConnection() {
         txt.textContent = 'Gateway Offline';
     }
 }
-
-// ─── Init ─────────────────────────────────────────────────────────────────────
 (async () => {
     // Set default date in schedule form
     document.getElementById('sch-date').value = today();
