@@ -109,4 +109,4 @@ app.delete('/tasks/:id', async (req, res) => {
     }
 });
 
-app.listen(3002, () => console.log('✅ Task Service running on http://localhost:3002'));
+app.listen(3002, () => console.log('Task Service running on http://localhost:3002'));
