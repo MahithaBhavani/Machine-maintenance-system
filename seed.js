@@ -47,27 +47,23 @@ const tasks = [
 ];
 
 async function seed() {
-    console.log('🌱 Seeding Firestore...\n');
-
-    // Seed Machines
+    console.log(' Seeding Firestore...\n');
     const machinesCol = db.collection('machines');
     for (const m of machines) {
         await machinesCol.doc(m.machine_id).set(m);
-        console.log(`  ✅ Machine: ${m.name}`);
+        console.log(`  Machine: ${m.name}`);
     }
-
-    // Seed Tasks
     const tasksCol = db.collection('tasks');
     for (const t of tasks) {
         await tasksCol.doc(t.task_id).set(t);
-        console.log(`  ✅ Task: ${t.description} (Machine ${t.machineId})`);
+        console.log(`  Task: ${t.description} (Machine ${t.machineId})`);
     }
 
-    console.log(`\n🎉 Seeding complete! ${machines.length} machines and ${tasks.length} tasks added.`);
+    console.log(`\n Seeding complete! ${machines.length} machines and ${tasks.length} tasks added.`);
     process.exit(0);
 }
 
 seed().catch(err => {
-    console.error('❌ Seed failed:', err.message);
+    console.error(' Seed failed:', err.message);
     process.exit(1);
 });
