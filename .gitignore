@@ -1,18 +1,9 @@
-# ── Firebase credentials — NEVER commit this ──────────────────────────────────
 firebase-service-account.json
-
-# ── Node dependencies ─────────────────────────────────────────────────────────
 node_modules/
 package-lock.json
-
-# ── OS / Editor junk ──────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 *.log
-
-# ── VS Code personal settings (optional: remove this line to share launch.json)
 .vscode/
-
-# ── Old CSV data (replaced by Firestore seed) ─────────────────────────────────
 machine-service/machines.csv
 task-service/tasks.csv
