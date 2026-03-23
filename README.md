@@ -1,4 +1,4 @@
-# MantisAI — Machine Maintenance Scheduler
+#  Machine Maintenance Scheduler
 
 > **Microservices-based industrial machine maintenance platform** with Firebase Firestore persistence, real-time risk prediction, and a premium dark-themed dashboard.
 
